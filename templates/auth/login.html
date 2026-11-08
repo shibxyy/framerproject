@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | Direct Farmer-to-Consumer Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="agri-card p-4 p-md-5 shadow-lg border-0">
+                <div class="text-center mb-4">
+                    <i class="fa-solid fa-leaf text-success fs-1 mb-2"></i>
+                    <h3 class="fw-bold">Welcome Back</h3>
+                    <p class="text-muted small">Log in to your Admin, Farmer, or Consumer portal</p>
+                </div>
+
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fa-solid fa-user me-1 text-success"></i> Username or Email</label>
+                        <input type="text" name="username" class="form-control form-control-lg" placeholder="Enter username or email" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold"><i class="fa-solid fa-lock me-1 text-success"></i> Password</label>
+                        <input type="password" name="password" class="form-control form-control-lg" placeholder="Enter password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-agri w-100 btn-lg mb-3">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i> Log In
+                    </button>
+                </form>
+
+                <hr class="my-4">
+                <div class="text-center">
+                    <p class="small text-muted mb-2">Don't have an account yet?</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'register_farmer' %}" class="btn btn-sm btn-outline-success rounded-pill px-3"><i class="fa-solid fa-tractor me-1"></i> Farmer Register</a>
+                        <a href="{% url 'register_consumer' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3"><i class="fa-solid fa-basket-shopping me-1"></i> Consumer Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

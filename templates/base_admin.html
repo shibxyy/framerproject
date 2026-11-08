@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Admin Sidebar -->
+    <aside class="sidebar shadow-sm">
+        <div class="text-center py-3 border-bottom mb-3">
+            <i class="fa-solid fa-user-shield text-success fs-1 mb-2"></i>
+            <h6 class="fw-bold mb-0">Admin Control Panel</h6>
+            <span class="badge bg-success small">System Administrator</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line text-success"></i> Dashboard Analytics
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin_farmers' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_farmers' %}active{% endif %}">
+                    <i class="fa-solid fa-tractor text-warning"></i> Manage Farmers
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin_consumers' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_consumers' %}active{% endif %}">
+                    <i class="fa-solid fa-users text-primary"></i> Manage Consumers
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin_categories' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_categories' %}active{% endif %}">
+                    <i class="fa-solid fa-layer-group text-info"></i> Vegetable Categories
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin_products' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_products' %}active{% endif %}">
+                    <i class="fa-solid fa-carrot text-danger"></i> Product Approvals
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin_orders' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_orders' %}active{% endif %}">
+                    <i class="fa-solid fa-receipt text-secondary"></i> Order Transactions
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin_complaints' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_complaints' %}active{% endif %}">
+                    <i class="fa-solid fa-triangle-exclamation text-danger"></i> Complaints Panel
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin_reviews' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_reviews' %}active{% endif %}">
+                    <i class="fa-solid fa-star text-warning"></i> Product Reviews
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin_reports' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
+                    <i class="fa-solid fa-file-invoice-dollar text-success"></i> Reports & Analytics
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Dashboard Content Area -->
+    <main class="dashboard-content">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Consumer Sidebar -->
+    <aside class="sidebar shadow-sm">
+        <div class="text-center py-3 border-bottom mb-3">
+            {% if user.consumer_profile.profile_image %}
+                <img src="{{ user.consumer_profile.profile_image.url }}" alt="Profile" class="rounded-circle mb-2" style="width: 70px; height: 70px; object-fit: cover;">
+            {% else %}
+                <i class="fa-solid fa-basket-shopping text-warning fs-1 mb-2"></i>
+            {% endif %}
+            <h6 class="fw-bold mb-0">{{ user.consumer_profile.full_name }}</h6>
+            <span class="badge bg-primary small">Consumer</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{% url 'consumer_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'consumer_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-house-user text-success"></i> My Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'marketplace' %}" class="sidebar-link {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">
+                    <i class="fa-solid fa-store text-warning"></i> Fresh Vegetable Store
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'cart_view' %}" class="sidebar-link {% if request.resolver_match.url_name == 'cart_view' %}active{% endif %}">
+                    <i class="fa-solid fa-cart-shopping text-primary"></i> Shopping Cart
+                    {% if user.consumer_profile.cart_items.count > 0 %}
+                        <span class="badge bg-success ms-auto">{{ user.consumer_profile.cart_items.count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'consumer_orders' %}" class="sidebar-link {% if request.resolver_match.url_name == 'consumer_orders' or request.resolver_match.url_name == 'consumer_order_track' %}active{% endif %}">
+                    <i class="fa-solid fa-truck-ramp-box text-info"></i> Order History & Tracking
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'consumer_notifications' %}" class="sidebar-link {% if request.resolver_match.url_name == 'consumer_notifications' %}active{% endif %}">
+                    <i class="fa-solid fa-bell text-danger"></i> Notification Center
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'consumer_complaints' %}" class="sidebar-link {% if request.resolver_match.url_name == 'consumer_complaints' %}active{% endif %}">
+                    <i class="fa-solid fa-circle-question text-secondary"></i> Help & Complaints
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'consumer_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'consumer_profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user-pen text-dark"></i> Delivery Address & Profile
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Dashboard Content Area -->
+    <main class="dashboard-content">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

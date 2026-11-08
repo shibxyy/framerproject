@@ -1,0 +1,124 @@
+{% extends 'base_farmer.html' %}
+
+{% block title %}Customer Reviews & Ratings | Farmer Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Customer Ratings & Reviews</h3>
+        <p class="text-muted small">Monitor customer feedback on your produce to improve quality and sales</p>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card bg-emerald">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Overall Rating</h6>
+            <h2 class="fw-bold mb-0"><i class="fa-solid fa-star text-warning me-1"></i> {{ overall_avg }} / 5</h2>
+            <small class="text-white-50">Across all produce</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-amber">
+            <h6 class="text-dark-50 text-uppercase fw-bold small">Total Customer Reviews</h6>
+            <h2 class="fw-bold mb-0">{{ total_reviews }}</h2>
+            <small>Reviews submitted</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-teal">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Top Rated Produce</h6>
+            <h5 class="fw-bold mb-0 text-truncate">
+                {% if best_rated_product %}{{ best_rated_product.product_name }}{% else %}N/A{% endif %}
+            </h5>
+            <small class="text-white-50">
+                {% if best_rated_product %}⭐ {{ best_rated_product.avg_rating|floatformat:1 }}{% else %}No ratings yet{% endif %}
+            </small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-earth">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Lowest Rated Produce</h6>
+            <h5 class="fw-bold mb-0 text-truncate">
+                {% if lowest_rated_product %}{{ lowest_rated_product.product_name }}{% else %}N/A{% endif %}
+            </h5>
+            <small class="text-white-50">
+                {% if lowest_rated_product %}⭐ {{ lowest_rated_product.avg_rating|floatformat:1 }}{% else %}No ratings yet{% endif %}
+            </small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Product-wise Ratings Table -->
+    <div class="col-lg-5">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-bar text-success me-2"></i> Product-wise Rating Summary</h5>
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Vegetable</th>
+                            <th>Average Rating</th>
+                            <th>Reviews</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prod in products %}
+                            <tr>
+                                <td class="fw-bold">{{ prod.product_name }}</td>
+                                <td>
+                                    <span class="fw-bold text-dark">
+                                        <i class="fa-solid fa-star text-warning me-1"></i>
+                                        {{ prod.avg_rating|default:0|floatformat:1 }}
+                                    </span>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ prod.review_count }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3" class="text-center text-muted">No products listed.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Reviews List -->
+    <div class="col-lg-7">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-comments text-success me-2"></i> Customer Review Log</h5>
+            <div class="list-group list-group-flush">
+                {% for fb in feedbacks %}
+                    <div class="list-group-item bg-transparent px-0 py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div>
+                                <span class="fw-bold">{{ fb.consumer.full_name }}</span>
+                                <span class="badge bg-light text-dark border ms-2">{{ fb.product.product_name }}</span>
+                            </div>
+                            <div class="text-warning small">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= fb.rating %}
+                                        <i class="fa-solid fa-star"></i>
+                                    {% else %}
+                                        <i class="fa-regular fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-dark fw-bold ms-1">({{ fb.rating }}.0)</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-1">"{{ fb.comment }}"</p>
+                        <small class="text-muted" style="font-size: 0.75rem;"><i class="fa-regular fa-clock me-1"></i> {{ fb.created_at|date:"d M Y, H:i" }}</small>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fa-regular fa-comment-dots fs-1 mb-2 d-block"></i>
+                        No customer reviews received yet.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

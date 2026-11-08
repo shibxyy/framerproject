@@ -1,0 +1,114 @@
+{% extends 'base_farmer.html' %}
+
+{% block title %}Farmer Dashboard | AgroDirect{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Welcome, {{ farmer.full_name }}!</h3>
+        <p class="text-muted small"><i class="fa-solid fa-location-dot text-danger me-1"></i> Farm Location: {{ farmer.farm_location }}</p>
+    </div>
+    <a href="{% url 'farmer_product_add' %}" class="btn btn-agri"><i class="fa-solid fa-plus-circle me-1"></i> Add Vegetable Product</a>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-emerald">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Total Earnings</h6>
+            <h2 class="fw-bold mb-0">₹{{ total_earnings|floatformat:2 }}</h2>
+            <small class="text-white-50">{{ completed_orders }} delivered orders</small>
+            <i class="fa-solid fa-indian-rupee-sign stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-amber">
+            <h6 class="text-dark-50 text-uppercase fw-bold small">Pending Orders</h6>
+            <h2 class="fw-bold mb-0">{{ pending_orders }}</h2>
+            <small>Action required</small>
+            <i class="fa-solid fa-boxes-packing stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-teal">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Active Vegetables</h6>
+            <h2 class="fw-bold mb-0">{{ approved_products }} / {{ total_products }}</h2>
+            <small class="text-white-50">Approved produce</small>
+            <i class="fa-solid fa-carrot stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-earth">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Low Stock Alert</h6>
+            <h2 class="fw-bold mb-0">{{ low_stock_products }}</h2>
+            <small class="text-white-50"><= 5 kg remaining</small>
+            <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Warning Alert Banner -->
+{% if low_stock_products > 0 %}
+<div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center justify-content-between">
+    <div>
+        <i class="fa-solid fa-triangle-exclamation fs-4 me-2 text-warning"></i>
+        <strong>Stock Warning:</strong> You have {{ low_stock_products }} product(s) running low on stock (<= 5kg). Please update your inventory.
+    </div>
+    <a href="{% url 'farmer_products' %}" class="btn btn-sm btn-warning text-dark fw-bold">Update Stock</a>
+</div>
+{% endif %}
+
+<!-- Recent Customer Orders -->
+<div class="agri-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0"><i class="fa-solid fa-basket-shopping text-success me-2"></i> Recent Customer Orders</h5>
+        <a href="{% url 'farmer_orders' %}" class="btn btn-sm btn-outline-success">View All Orders</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Order #</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Customer Address</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in recent_orders %}
+                    <tr>
+                        <td><span class="fw-bold">#{{ item.order.id }}</span></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                {% if item.product.product_image %}
+                                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" class="rounded-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% endif %}
+                                <span class="fw-bold">{{ item.product.product_name }}</span>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ item.quantity }} kg</span></td>
+                        <td><span class="fw-bold text-success">₹{{ item.subtotal }}</span></td>
+                        <td><small class="text-muted">{{ item.order.delivery_address|truncatechars:30 }}</small></td>
+                        <td>
+                            <span class="badge badge-status 
+                                {% if item.item_status == 'Delivered' %}badge-delivered
+                                {% elif item.item_status == 'Pending' %}badge-pending
+                                {% else %}badge-approved{% endif %}">
+                                {{ item.item_status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'farmer_orders' %}" class="btn btn-sm btn-outline-primary">Manage</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">No customer orders received yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Direct Farmer-to-Consumer Marketplace | Fresh Vegetables Online{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center text-lg-start">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3"><i class="fa-solid fa-seedling me-1"></i> 100% Direct From Farms</span>
+                <h1 class="hero-title">Fresh Vegetables Delivered Directly From Farmers To Your Doorstep</h1>
+                <p class="hero-subtitle">Cut out intermediaries. Support local hard-working farmers and enjoy farm-fresh, organic vegetables at honest prices.</p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                    <a href="{% url 'login' %}" class="btn btn-accent btn-lg"><i class="fa-solid fa-basket-shopping me-2"></i> Shop Fresh Vegetables</a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'register_farmer' %}" class="btn btn-outline-light btn-lg rounded-pill"><i class="fa-solid fa-tractor me-2"></i> Sell Your Produce</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80" alt="Fresh Vegetables" class="img-fluid rounded-4 shadow-lg border border-3 border-white transform-hover" style="max-height: 420px; object-fit: cover;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Counter Bar -->
+<section class="py-4 bg-white border-bottom shadow-sm">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3 col-6">
+                <h3 class="fw-bold text-success mb-0"><i class="fa-solid fa-users me-2"></i>500+</h3>
+                <p class="text-muted small mb-0">Verified Farmers</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <h3 class="fw-bold text-success mb-0"><i class="fa-solid fa-basket-shopping me-2"></i>1,200+</h3>
+                <p class="text-muted small mb-0">Fresh Products Listed</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <h3 class="fw-bold text-success mb-0"><i class="fa-solid fa-truck-fast me-2"></i>15,000+</h3>
+                <p class="text-muted small mb-0">Orders Delivered</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <h3 class="fw-bold text-success mb-0"><i class="fa-solid fa-star text-warning me-2"></i>4.9 / 5</h3>
+                <p class="text-muted small mb-0">Consumer Satisfaction</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Platform -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=800&q=80" alt="Farmer in field" class="img-fluid rounded-4 shadow-sm">
+            </div>
+            <div class="col-lg-6">
+                <span class="text-success fw-bold text-uppercase small">About AgroDirect</span>
+                <h2 class="fw-bold mb-3">Empowering Farmers, Delivering Pure Freshness to Consumers</h2>
+                <p class="text-muted">Traditional agricultural supply chains involve multiple middle-men who inflate prices while giving farmers a fraction of the profit. AgroDirect eliminates brokers, connecting consumers directly to local vegetable farmers.</p>
+                <div class="row g-3 mt-2">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="bg-success text-white p-3 rounded-circle"><i class="fa-solid fa-hand-holding-dollar fs-4"></i></div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Fair Prices for All</h6>
+                                <p class="small text-muted mb-0">Farmers earn 100% fair price for their hard harvest.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="bg-warning text-dark p-3 rounded-circle"><i class="fa-solid fa-carrot fs-4"></i></div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Harvest Same Day</h6>
+                                <p class="small text-muted mb-0">Vegetables picked fresh right before delivery.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Categories -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-success fw-bold text-uppercase small">Explore Categories</span>
+            <h2 class="fw-bold">Browse Vegetable Categories</h2>
+        </div>
+        <div class="row g-4">
+            {% for cat in categories %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="agri-card text-center p-4">
+                        {% if cat.category_image %}
+                            <img src="{{ cat.category_image.url }}" alt="{{ cat.category_name }}" class="rounded-circle mb-3" style="width: 110px; height: 110px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light p-4 rounded-circle d-inline-block mb-3"><i class="fa-solid fa-leaf text-success fs-1"></i></div>
+                        {% endif %}
+                        <h5 class="fw-bold">{{ cat.category_name }}</h5>
+                        <p class="text-muted small">Freshly harvested organic crops from local farms.</p>
+                        <!-- <a href="{% url 'marketplace' %}?category={{ cat.id }}" class="btn btn-sm btn-outline-success rounded-pill px-4">Explore Products</a> -->
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-4">
+                    <p class="text-muted">No categories available yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Fresh Vegetables Grid -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <span class="text-success fw-bold text-uppercase small">Direct From Farm</span>
+                <h2 class="fw-bold mb-0">Fresh Vegetables Available Now</h2>
+            </div>
+            <!-- <a href="{% url 'marketplace' %}" class="btn btn-agri"><i class="fa-solid fa-store me-1"></i> View Full Store</a> -->
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="agri-card h-100">
+                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="agri-card-img">
+                        <div class="p-3">
+                            <span class="badge bg-light text-success border mb-2">{{ product.category.category_name }}</span>
+                            <h5 class="fw-bold mb-1">{{ product.product_name }}</h5>
+                            <p class="small text-muted mb-2"><i class="fa-solid fa-user-ninja text-success me-1"></i> Farmed by {{ product.farmer.full_name }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <span class="price-tag">₹{{ product.price_per_kg }}</span>
+                                    <span class="small text-muted">/ kg</span>
+                                </div>
+                                <!-- <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-agri"><i class="fa-solid fa-eye me-1"></i> Details</a> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-4">
+                    <p class="text-muted">No approved products listed yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Popular Farmers -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-success fw-bold text-uppercase small">Meet Our Farmers</span>
+            <h2 class="fw-bold">Popular Verified Local Farmers</h2>
+        </div>
+        <div class="row g-4">
+            {% for farmer in popular_farmers %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="agri-card text-center p-4">
+                        {% if farmer.profile_image %}
+                            <img src="{{ farmer.profile_image.url }}" alt="{{ farmer.full_name }}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-success text-white p-3 rounded-circle d-inline-block mb-3"><i class="fa-solid fa-wheat-awn fs-2"></i></div>
+                        {% endif %}
+                        <h5 class="fw-bold mb-1">{{ farmer.full_name }}</h5>
+                        <p class="small text-muted mb-2"><i class="fa-solid fa-location-dot text-danger me-1"></i> {{ farmer.farm_location }}</p>
+                        <span class="badge bg-success"><i class="fa-solid fa-circle-check me-1"></i> Verified Farm</span>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-4">
+                    <p class="text-muted">Farmers will appear here after approval.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Working Process -->
+<section class="py-5 bg-success text-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">How AgroDirect Works</h2>
+            <p class="lead text-white-50">Simple 3-step direct farm ordering workflow.</p>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-4 bg-white text-dark rounded-4 shadow-sm h-100">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">1</div>
+                    <h5 class="fw-bold">Farmers List Fresh Harvest</h5>
+                    <p class="small text-muted mb-0">Local farmers add their daily fresh vegetable harvest with transparent pricing.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-white text-dark rounded-4 shadow-sm h-100">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">2</div>
+                    <h5 class="fw-bold">Consumers Place Order</h5>
+                    <p class="small text-muted mb-0">Consumers browse, filter, select fresh vegetables, and checkout directly.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-white text-dark rounded-4 shadow-sm h-100">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">3</div>
+                    <h5 class="fw-bold">Direct Doorstep Delivery</h5>
+                    <p class="small text-muted mb-0">Farmers pack and deliver orders right to your doorstep with status updates.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Customer Reviews -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-success fw-bold text-uppercase small">Real Feedback</span>
+            <h2 class="fw-bold">What Our Customers Say</h2>
+        </div>
+        <div class="row g-4">
+            {% for rev in recent_reviews %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="agri-card p-4 h-100">
+                        <div class="text-warning mb-2">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= rev.rating %}
+                                    <i class="fa-solid fa-star"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="small text-muted mb-3">"{{ rev.comment }}"</p>
+                        <hr class="my-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="fw-bold small">{{ rev.consumer.full_name }}</span>
+                            <span class="badge bg-light text-dark border small">{{ rev.product.product_name }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center text-muted">Customer reviews will display here.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Admin Dashboard | AgroDirect{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Admin System Dashboard</h3>
+        <p class="text-muted small">Platform activity, analytics, and pending management tasks</p>
+    </div>
+    <span class="badge bg-light text-dark border p-2"><i class="fa-regular fa-clock me-1 text-success"></i> Realtime Statistics</span>
+</div>
+
+<!-- Key Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-emerald">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Total Farmers</h6>
+            <h2 class="fw-bold mb-0">{{ total_farmers }}</h2>
+            <small class="text-white-50">{{ pending_farmers }} pending approval</small>
+            <i class="fa-solid fa-tractor stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-earth">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Total Consumers</h6>
+            <h2 class="fw-bold mb-0">{{ total_consumers }}</h2>
+            <small class="text-white-50">Active marketplace buyers</small>
+            <i class="fa-solid fa-users stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-amber">
+            <h6 class="text-dark-50 text-uppercase fw-bold small">Total Products</h6>
+            <h2 class="fw-bold mb-0">{{ total_products }}</h2>
+            <small>{{ pending_products }} pending review</small>
+            <i class="fa-solid fa-carrot stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-teal">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Total Revenue</h6>
+            <h2 class="fw-bold mb-0">₹{{ total_revenue|floatformat:2 }}</h2>
+            <small class="text-white-50">{{ delivered_orders }} completed orders</small>
+            <i class="fa-solid fa-indian-rupee-sign stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Banners for Pending Work -->
+{% if pending_farmers > 0 or pending_products > 0 or pending_complaints > 0 %}
+<div class="row g-3 mb-4">
+    {% if pending_farmers > 0 %}
+    <div class="col-md-4">
+        <div class="alert alert-warning d-flex align-items-center justify-content-between mb-0 border-0 shadow-sm rounded-3">
+            <div>
+                <i class="fa-solid fa-user-clock fs-4 me-2"></i>
+                <strong>{{ pending_farmers }} Farmer(s)</strong> waiting for approval
+            </div>
+            <a href="{% url 'admin_farmers' %}?status=Pending" class="btn btn-sm btn-warning fw-bold">Review</a>
+        </div>
+    </div>
+    {% endif %}
+    {% if pending_products > 0 %}
+    <div class="col-md-4">
+        <div class="alert alert-info d-flex align-items-center justify-content-between mb-0 border-0 shadow-sm rounded-3">
+            <div>
+                <i class="fa-solid fa-leaf fs-4 me-2"></i>
+                <strong>{{ pending_products }} Vegetable(s)</strong> awaiting review
+            </div>
+            <a href="{% url 'admin_products' %}?status=Pending" class="btn btn-sm btn-info text-white fw-bold">Review</a>
+        </div>
+    </div>
+    {% endif %}
+    {% if pending_complaints > 0 %}
+    <div class="col-md-4">
+        <div class="alert alert-danger d-flex align-items-center justify-content-between mb-0 border-0 shadow-sm rounded-3">
+            <div>
+                <i class="fa-solid fa-triangle-exclamation fs-4 me-2"></i>
+                <strong>{{ pending_complaints }} Complaint(s)</strong> pending
+            </div>
+            <a href="{% url 'admin_complaints' %}?status=Pending" class="btn btn-sm btn-danger fw-bold">Resolve</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line text-success me-2"></i> Marketplace Activity & Orders</h5>
+            <canvas id="adminSalesChart" height="230"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie text-success me-2"></i> Order Status Distribution</h5>
+            <canvas id="orderStatusPie" height="230"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders & Top Items -->
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="agri-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-clock-rotate-left text-success me-2"></i> Recent Order Transactions</h5>
+                <a href="{% url 'admin_orders' %}" class="btn btn-sm btn-outline-success">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Consumer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_activities %}
+                            <tr>
+                                <td><span class="fw-bold">#{{ order.id }}</span></td>
+                                <td>{{ order.consumer.full_name }}</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>
+                                    <span class="badge badge-status 
+                                        {% if order.order_status == 'Delivered' %}badge-delivered
+                                        {% elif order.order_status == 'Pending' %}badge-pending
+                                        {% else %}badge-approved{% endif %}">
+                                        {{ order.order_status }}
+                                    </span>
+                                </td>
+                                <td class="small text-muted">{{ order.order_date|date:"d M H:i" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted">No orders recorded yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-award text-warning me-2"></i> Top Performing Farmers</h5>
+            <ul class="list-group list-group-flush">
+                {% for f in top_farmers %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
+                        <div>
+                            <h6 class="fw-bold mb-0">{{ f.full_name }}</h6>
+                            <small class="text-muted"><i class="fa-solid fa-location-dot me-1"></i>{{ f.farm_location }}</small>
+                        </div>
+                        <span class="badge bg-success rounded-pill">{{ f.order_count }} Orders</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted text-center border-0">No farmer sales data yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Admin Sales Chart
+    const ctx1 = document.getElementById('adminSalesChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['Total Orders', 'Pending', 'Delivered', 'Products', 'Farmers', 'Consumers'],
+            datasets: [{
+                label: 'System Count',
+                data: [{{ total_orders }}, {{ pending_orders }}, {{ delivered_orders }}, {{ total_products }}, {{ total_farmers }}, {{ total_consumers }}],
+                backgroundColor: ['#2e7d32', '#fbc02d', '#00796b', '#5d4037', '#81c784', '#64b5f6'],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Order Status Pie Chart
+    const ctx2 = document.getElementById('orderStatusPie').getContext('2d');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Delivered', 'Others'],
+            datasets: [{
+                data: [{{ pending_orders }}, {{ delivered_orders }}, {{ total_orders }}-{{ pending_orders }}-{{ delivered_orders }}],
+                backgroundColor: ['#fbc02d', '#2e7d32', '#e0e0e0']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+</script>
+{% endblock %}

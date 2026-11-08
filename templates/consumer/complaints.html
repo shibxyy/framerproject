@@ -1,0 +1,64 @@
+{% extends 'base_consumer.html' %}
+
+{% block title %}Help & Complaints | AgroDirect{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Help & Complaint Management</h3>
+        <p class="text-muted small">Report any issues with orders, vegetables, or farm deliveries</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Submit Complaint Form -->
+    <div class="col-lg-5">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen text-danger me-2"></i> File a Complaint</h5>
+            <form method="POST" action="{% url 'consumer_complaints' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Complaint Subject *</label>
+                    <input type="text" name="subject" value="{{ form.subject.value|default:'' }}" class="form-control {% if form.subject.errors %}is-invalid{% endif %}" placeholder="e.g. Damaged vegetables delivered" required minlength="5" maxlength="255">
+                    {% if form.subject.errors %}<div class="invalid-feedback d-block">{{ form.subject.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Detailed Description *</label>
+                    <textarea name="description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" rows="4" placeholder="Describe your complaint in detail (min 10 characters)..." required minlength="10">{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}<div class="invalid-feedback d-block">{{ form.description.errors.0 }}</div>{% endif %}
+                </div>
+                <button type="submit" class="btn btn-danger w-100"><i class="fa-solid fa-paper-plane me-1"></i> Submit Complaint</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- My Complaints History -->
+    <div class="col-lg-7">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left text-success me-2"></i> My Filed Complaints</h5>
+            <div class="list-group list-group-flush">
+                {% for c in complaints %}
+                    <div class="list-group-item bg-transparent px-0 py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="fw-bold mb-0 text-danger">#{{ c.id }} - {{ c.subject }}</h6>
+                            <span class="badge badge-status
+                                {% if c.status == 'Resolved' %}badge-approved
+                                {% elif c.status == 'Pending' %}badge-pending
+                                {% else %}badge-rejected{% endif %}">
+                                {{ c.status }}
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-2">{{ c.description }}</p>
+                        <small class="text-muted" style="font-size: 0.75rem;"><i class="fa-regular fa-clock me-1"></i> Filed on {{ c.created_at|date:"d M Y, H:i" }}</small>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-circle-check text-success fs-1 mb-2 d-block"></i>
+                        No complaints filed yet.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

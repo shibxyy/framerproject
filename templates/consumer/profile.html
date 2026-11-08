@@ -1,0 +1,53 @@
+{% extends 'base_consumer.html' %}
+
+{% block title %}Edit Delivery Profile | Consumer Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="agri-card p-4 p-md-5">
+            <h4 class="fw-bold mb-3"><i class="fa-solid fa-user-pen text-primary me-2"></i> Edit Consumer Profile & Address</h4>
+            <p class="text-muted small mb-4">Manage your delivery contact info and default shipping location</p>
+
+            <form method="POST" enctype="multipart/form-data" action="{% url 'consumer_profile' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Full Name *</label>
+                        <input type="text" name="full_name" value="{{ form.full_name.value|default:'' }}" class="form-control {% if form.full_name.errors %}is-invalid{% endif %}" placeholder="Full Name" required minlength="3" maxlength="200">
+                        {% if form.full_name.errors %}<div class="invalid-feedback d-block">{{ form.full_name.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Phone Number *</label>
+                        <input type="text" name="phone_number" value="{{ form.phone_number.value|default:'' }}" class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}" placeholder="10-digit Phone Number" required pattern="[\s\-\+\(\)\d]{10,15}">
+                        {% if form.phone_number.errors %}<div class="invalid-feedback d-block">{{ form.phone_number.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Default Delivery Address *</label>
+                        <textarea name="delivery_address" class="form-control {% if form.delivery_address.errors %}is-invalid{% endif %}" rows="3" placeholder="Full delivery address..." required minlength="5">{{ form.delivery_address.value|default:'' }}</textarea>
+                        {% if form.delivery_address.errors %}<div class="invalid-feedback d-block">{{ form.delivery_address.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Profile Image</label>
+                        {% if consumer.profile_image %}
+                            <div class="mb-2 d-flex align-items-center gap-3">
+                                <img src="{{ consumer.profile_image.url }}" alt="Profile" class="rounded-circle shadow-sm" style="width: 70px; height: 70px; object-fit: cover;">
+                                <small class="text-muted">Upload a new image to replace the current one</small>
+                            </div>
+                        {% endif %}
+                        <input type="file" name="profile_image" class="form-control {% if form.profile_image.errors %}is-invalid{% endif %}" accept=".jpg,.jpeg,.png,.webp">
+                        <div class="form-text">Allowed formats: JPG, JPEG, PNG, WEBP. Max file size: 5MB.</div>
+                        {% if form.profile_image.errors %}<div class="invalid-feedback d-block">{{ form.profile_image.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 btn-lg rounded-pill mt-4 fw-bold"><i class="fa-solid fa-save me-1"></i> Update Profile</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

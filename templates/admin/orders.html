@@ -1,0 +1,91 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Order Transactions | Admin Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Order Transactions & Monitoring</h3>
+        <p class="text-muted small">Monitor customer purchases, payment transactions, and fulfillment stages</p>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="agri-card p-3 mb-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search Order #, Consumer, or TXN ID...">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="">-- All Order Statuses --</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Accepted" {% if status_filter == 'Accepted' %}selected{% endif %}>Accepted</option>
+                <option value="Packed" {% if status_filter == 'Packed' %}selected{% endif %}>Packed</option>
+                <option value="Out For Delivery" {% if status_filter == 'Out For Delivery' %}selected{% endif %}>Out For Delivery</option>
+                <option value="Delivered" {% if status_filter == 'Delivered' %}selected{% endif %}>Delivered</option>
+                <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-agri w-100"><i class="fa-solid fa-filter me-1"></i> Apply Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Orders Table -->
+<div class="agri-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Order #</th>
+                    <th>Consumer</th>
+                    <th>Ordered Items</th>
+                    <th>Total Price</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td><span class="fw-bold text-success">#{{ order.id }}</span></td>
+                        <td>
+                            <span class="fw-bold">{{ order.consumer.full_name }}</span><br>
+                            <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>{{ order.consumer.phone_number }}</small>
+                        </td>
+                        <td>
+                            <ul class="list-unstyled mb-0 small">
+                                {% for item in order.items.all %}
+                                    <li><i class="fa-solid fa-leaf text-success me-1"></i> {{ item.product.product_name }} ({{ item.quantity }}kg @ ₹{{ item.price }})</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><span class="fw-bold fs-6 text-dark">₹{{ order.total_amount }}</span></td>
+                        <td>
+                            <span class="badge bg-success"><i class="fa-solid fa-circle-check me-1"></i> {{ order.payment_status }}</span><br>
+                            <small class="font-monospace text-muted">{{ order.transaction_id }}</small>
+                        </td>
+                        <td>
+                            <span class="badge badge-status 
+                                {% if order.order_status == 'Delivered' %}badge-delivered
+                                {% elif order.order_status == 'Pending' %}badge-pending
+                                {% else %}badge-approved{% endif %}">
+                                {{ order.order_status }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">{{ order.order_date|date:"d M Y, H:i" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">No order records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

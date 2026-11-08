@@ -1,0 +1,69 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Manage Consumers | Admin Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Consumer Accounts</h3>
+        <p class="text-muted small">List of registered buyers and consumers on AgroDirect</p>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="agri-card p-3 mb-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-9">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search consumer name, username, or phone...">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-agri w-100"><i class="fa-solid fa-filter me-1"></i> Search</button>
+        </div>
+    </form>
+</div>
+
+<!-- Consumers Table -->
+<div class="agri-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Consumer Name</th>
+                    <th>Username / Email</th>
+                    <th>Phone Number</th>
+                    <th>Delivery Address</th>
+                    <th>Joined Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for consumer in consumers %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if consumer.profile_image %}
+                                    <img src="{{ consumer.profile_image.url }}" alt="{{ consumer.full_name }}" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-primary text-white p-2 rounded-circle text-center" style="width: 45px; height: 45px;"><i class="fa-solid fa-user fs-5"></i></div>
+                                {% endif %}
+                                <h6 class="fw-bold mb-0">{{ consumer.full_name }}</h6>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="fw-semibold">{{ consumer.user.username }}</span><br>
+                            <small class="text-muted">{{ consumer.user.email }}</small>
+                        </td>
+                        <td>{{ consumer.phone_number }}</td>
+                        <td><small class="text-muted">{{ consumer.delivery_address|truncatechars:40 }}</small></td>
+                        <td class="small text-muted">{{ consumer.created_at|date:"d M Y" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No consumers registered yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

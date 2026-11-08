@@ -1,0 +1,78 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Manage Categories | Admin Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Vegetable Categories</h3>
+        <p class="text-muted small">Organize vegetables into structured categories for consumers</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Add Category Form -->
+    <div class="col-lg-4">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-plus-circle text-success me-2"></i> Add New Category</h5>
+            <form method="POST" enctype="multipart/form-data" action="{% url 'admin_categories' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Category Name *</label>
+                    <input type="text" name="category_name" value="{{ form.category_name.value|default:'' }}" class="form-control {% if form.category_name.errors %}is-invalid{% endif %}" placeholder="e.g. Leafy Greens" required minlength="2" maxlength="100">
+                    {% if form.category_name.errors %}<div class="invalid-feedback d-block">{{ form.category_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Category Image *</label>
+                    <input type="file" name="category_image" class="form-control {% if form.category_image.errors %}is-invalid{% endif %}" accept=".jpg,.jpeg,.png,.webp" required>
+                    <div class="form-text">Allowed: JPG, PNG, WEBP. Max 5MB.</div>
+                    {% if form.category_image.errors %}<div class="invalid-feedback d-block">{{ form.category_image.errors.0 }}</div>{% endif %}
+                </div>
+                <button type="submit" class="btn btn-agri w-100"><i class="fa-solid fa-save me-1"></i> Save Category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category List -->
+    <div class="col-lg-8">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-layer-group text-success me-2"></i> Existing Categories</h5>
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Image</th>
+                            <th>Category Name</th>
+                            <th>Products Count</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories %}
+                            <tr>
+                                <td>
+                                    {% if cat.category_image %}
+                                        <img src="{{ cat.category_image.url }}" alt="{{ cat.category_name }}" class="rounded-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light p-2 rounded-3 text-center" style="width: 50px; height: 50px;"><i class="fa-solid fa-leaf text-success fs-4"></i></div>
+                                    {% endif %}
+                                </td>
+                                <td><h6 class="fw-bold mb-0">{{ cat.category_name }}</h6></td>
+                                <td><span class="badge bg-success rounded-pill">{{ cat.product_count }} Products</span></td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'admin_category_edit' cat.id %}" class="btn btn-outline-primary"><i class="fa-solid fa-pen me-1"></i> Edit</a>
+                                        <a href="{% url 'admin_category_delete' cat.id %}" class="btn btn-outline-danger" onclick="return confirm('Delete category \'{{ cat.category_name }}\'? This cannot be undone.')"><i class="fa-solid fa-trash me-1"></i> Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted py-4">No categories added yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

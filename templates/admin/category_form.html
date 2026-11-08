@@ -1,0 +1,38 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Edit Category | Admin Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="agri-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-pen text-success me-2"></i> Edit Category</h5>
+                <a href="{% url 'admin_categories' %}" class="btn btn-sm btn-outline-secondary">Back to Categories</a>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" action="{% url 'admin_category_edit' category.id %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Category Name *</label>
+                    <input type="text" name="category_name" value="{{ form.category_name.value|default:'' }}" class="form-control {% if form.category_name.errors %}is-invalid{% endif %}" placeholder="Category Name" required minlength="2" maxlength="100">
+                    {% if form.category_name.errors %}<div class="invalid-feedback d-block">{{ form.category_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Category Image</label>
+                    {% if category.category_image %}
+                        <div class="mb-2">
+                            <img src="{{ category.category_image.url }}" alt="{{ category.category_name }}" class="rounded-3" style="max-height: 100px; object-fit: cover;">
+                            <div class="form-text">Upload a new image to replace the current one.</div>
+                        </div>
+                    {% endif %}
+                    <input type="file" name="category_image" class="form-control {% if form.category_image.errors %}is-invalid{% endif %}" accept=".jpg,.jpeg,.png,.webp">
+                    <div class="form-text">Allowed: JPG, PNG, WEBP. Max 5MB.</div>
+                    {% if form.category_image.errors %}<div class="invalid-feedback d-block">{{ form.category_image.errors.0 }}</div>{% endif %}
+                </div>
+                <button type="submit" class="btn btn-agri w-100"><i class="fa-solid fa-save me-1"></i> Update Category</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

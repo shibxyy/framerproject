@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Farmer Sidebar -->
+    <aside class="sidebar shadow-sm">
+        <div class="text-center py-3 border-bottom mb-3">
+            {% if user.farmer_profile.profile_image %}
+                <img src="{{ user.farmer_profile.profile_image.url }}" alt="Profile" class="rounded-circle mb-2" style="width: 70px; height: 70px; object-fit: cover;">
+            {% else %}
+                <i class="fa-solid fa-wheat-awn text-success fs-1 mb-2"></i>
+            {% endif %}
+            <h6 class="fw-bold mb-0">{{ user.farmer_profile.full_name }}</h6>
+            <span class="badge bg-success small"><i class="fa-solid fa-seedling me-1"></i> {{ user.farmer_profile.status }} Farmer</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{% url 'farmer_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'farmer_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-gauge text-success"></i> Overview
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'farmer_products' %}" class="sidebar-link {% if request.resolver_match.url_name == 'farmer_products' or request.resolver_match.url_name == 'farmer_product_add' or request.resolver_match.url_name == 'farmer_product_edit' %}active{% endif %}">
+                    <i class="fa-solid fa-carrot text-warning"></i> My Vegetables
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'farmer_orders' %}" class="sidebar-link {% if request.resolver_match.url_name == 'farmer_orders' %}active{% endif %}">
+                    <i class="fa-solid fa-boxes-packing text-primary"></i> Customer Orders
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'farmer_reports' %}" class="sidebar-link {% if request.resolver_match.url_name == 'farmer_reports' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-column text-info"></i> Sales & Stock Reports
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'farmer_reviews' %}" class="sidebar-link {% if request.resolver_match.url_name == 'farmer_reviews' %}active{% endif %}">
+                    <i class="fa-solid fa-star text-warning"></i> Customer Reviews
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'farmer_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'farmer_profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user-gear text-secondary"></i> Edit Farm Profile
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Dashboard Content Area -->
+    <main class="dashboard-content">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

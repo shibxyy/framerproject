@@ -1,0 +1,99 @@
+{% extends 'base_farmer.html' %}
+
+{% block title %}Customer Orders | Farmer Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Customer Orders Fulfillment</h3>
+        <p class="text-muted small">Update fulfillment stages: Accept &rarr; Packed &rarr; Out For Delivery &rarr; Delivered</p>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="agri-card p-3 mb-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-9">
+            <select name="status" class="form-select">
+                <option value="">-- All Order Item Statuses --</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Accepted" {% if status_filter == 'Accepted' %}selected{% endif %}>Accepted</option>
+                <option value="Packed" {% if status_filter == 'Packed' %}selected{% endif %}>Packed</option>
+                <option value="Out For Delivery" {% if status_filter == 'Out For Delivery' %}selected{% endif %}>Out For Delivery</option>
+                <option value="Delivered" {% if status_filter == 'Delivered' %}selected{% endif %}>Delivered</option>
+                <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-agri w-100"><i class="fa-solid fa-filter me-1"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Order Items List -->
+<div class="agri-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer Name & Phone</th>
+                    <th>Delivery Address</th>
+                    <th>Vegetable Item</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Current Status</th>
+                    <th>Update Status Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                    <tr>
+                        <td><span class="fw-bold text-success">#{{ item.order.id }}</span></td>
+                        <td>
+                            <span class="fw-bold">{{ item.order.consumer.full_name }}</span><br>
+                            <small class="text-muted"><i class="fa-solid fa-phone me-1 text-success"></i>{{ item.order.consumer.phone_number }}</small>
+                        </td>
+                        <td><small class="text-muted">{{ item.order.delivery_address }}</small></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                {% if item.product.product_image %}
+                                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" class="rounded-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% endif %}
+                                <span class="fw-bold">{{ item.product.product_name }}</span>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ item.quantity }} kg</span></td>
+                        <td><span class="fw-bold text-success">₹{{ item.subtotal }}</span></td>
+                        <td>
+                            <span class="badge badge-status 
+                                {% if item.item_status == 'Delivered' %}badge-delivered
+                                {% elif item.item_status == 'Pending' %}badge-pending
+                                {% else %}badge-approved{% endif %}">
+                                {{ item.item_status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-agri dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Change Status
+                                </button>
+                                <ul class="dropdown-menu shadow border-0">
+                                    <li><a class="dropdown-item text-primary" href="{% url 'farmer_update_order_status' item.id 'Accepted' %}"><i class="fa-solid fa-check me-2"></i> Accept Order</a></li>
+                                    <li><a class="dropdown-item text-warning" href="{% url 'farmer_update_order_status' item.id 'Packed' %}"><i class="fa-solid fa-box-archive me-2"></i> Mark as Packed</a></li>
+                                    <li><a class="dropdown-item text-info" href="{% url 'farmer_update_order_status' item.id 'Out For Delivery' %}"><i class="fa-solid fa-truck-fast me-2"></i> Out For Delivery</a></li>
+                                    <li><a class="dropdown-item text-success fw-bold" href="{% url 'farmer_update_order_status' item.id 'Delivered' %}"><i class="fa-solid fa-circle-check me-2"></i> Mark Delivered</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="{% url 'farmer_update_order_status' item.id 'Rejected' %}"><i class="fa-solid fa-xmark me-2"></i> Reject Order</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8" class="text-center text-muted py-5">No orders received matching this filter.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Manage Farmers | Admin Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Farmer Registrations & Status</h3>
+        <p class="text-muted small">Review, approve, reject, or block registered farmers</p>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="agri-card p-3 mb-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search farmer name, username, or phone...">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="">-- All Statuses --</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending Approval</option>
+                <option value="Approved" {% if status_filter == 'Approved' %}selected{% endif %}>Approved</option>
+                <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+                <option value="Blocked" {% if status_filter == 'Blocked' %}selected{% endif %}>Blocked</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-agri w-100"><i class="fa-solid fa-filter me-1"></i> Apply Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Farmers Table -->
+<div class="agri-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Farmer Name</th>
+                    <th>Username / Email</th>
+                    <th>Phone Number</th>
+                    <th>Farm Location</th>
+                    <th>Status</th>
+                    <th>Registration Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for farmer in farmers %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if farmer.profile_image %}
+                                    <img src="{{ farmer.profile_image.url }}" alt="{{ farmer.full_name }}" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-success text-white p-2 rounded-circle text-center" style="width: 45px; height: 45px;"><i class="fa-solid fa-wheat-awn fs-5"></i></div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="fw-bold mb-0">{{ farmer.full_name }}</h6>
+                                    <small class="text-muted">{{ farmer.address|truncatechars:30 }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="fw-semibold">{{ farmer.user.username }}</span><br>
+                            <small class="text-muted">{{ farmer.user.email }}</small>
+                        </td>
+                        <td>{{ farmer.phone_number }}</td>
+                        <td><span class="badge bg-light text-dark border"><i class="fa-solid fa-location-dot text-danger me-1"></i> {{ farmer.farm_location }}</span></td>
+                        <td>
+                            <span class="badge badge-status 
+                                {% if farmer.status == 'Approved' %}badge-approved
+                                {% elif farmer.status == 'Pending' %}badge-pending
+                                {% else %}badge-rejected{% endif %}">
+                                {{ farmer.status }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">{{ farmer.created_at|date:"d M Y" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                {% if farmer.status != 'Approved' %}
+                                    <a href="{% url 'admin_farmer_action' farmer.id 'approve' %}" class="btn btn-outline-success" title="Approve Farmer"><i class="fa-solid fa-check me-1"></i> Approve</a>
+                                {% endif %}
+                                {% if farmer.status != 'Rejected' %}
+                                    <a href="{% url 'admin_farmer_action' farmer.id 'reject' %}" class="btn btn-outline-warning" title="Reject Farmer"><i class="fa-solid fa-xmark me-1"></i> Reject</a>
+                                {% endif %}
+                                {% if farmer.status != 'Blocked' %}
+                                    <a href="{% url 'admin_farmer_action' farmer.id 'block' %}" class="btn btn-outline-danger" title="Block Farmer" onclick="return confirm('Are you sure you want to block this farmer?')"><i class="fa-solid fa-ban me-1"></i> Block</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">No farmers found matching your criteria.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

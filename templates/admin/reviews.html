@@ -1,0 +1,105 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Manage Product Reviews | Admin Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Platform Product Reviews</h3>
+        <p class="text-muted small">Monitor customer feedback, average ratings, and remove inappropriate content</p>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="stat-card bg-emerald">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Platform Average Rating</h6>
+            <h2 class="fw-bold mb-0"><i class="fa-solid fa-star text-warning me-1"></i> {{ platform_avg_rating }} / 5</h2>
+            <small class="text-white-50">Across all submitted customer reviews</small>
+            <i class="fa-solid fa-star-half-stroke stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="stat-card bg-teal">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Total Reviews Submitted</h6>
+            <h2 class="fw-bold mb-0">{{ total_reviews }}</h2>
+            <small class="text-white-50">Customer feedback entries</small>
+            <i class="fa-solid fa-comments stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="agri-card p-3 mb-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search by vegetable, consumer name, or keyword...">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="rating" class="form-select">
+                <option value="">-- All Star Ratings --</option>
+                <option value="5" {% if rating_filter == '5' %}selected{% endif %}>5 Stars ⭐⭐⭐⭐⭐</option>
+                <option value="4" {% if rating_filter == '4' %}selected{% endif %}>4 Stars ⭐⭐⭐⭐</option>
+                <option value="3" {% if rating_filter == '3' %}selected{% endif %}>3 Stars ⭐⭐⭐</option>
+                <option value="2" {% if rating_filter == '2' %}selected{% endif %}>2 Stars ⭐⭐</option>
+                <option value="1" {% if rating_filter == '1' %}selected{% endif %}>1 Star ⭐</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-agri w-100"><i class="fa-solid fa-filter me-1"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Reviews Table -->
+<div class="agri-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Review #</th>
+                    <th>Vegetable Produce</th>
+                    <th>Farmer</th>
+                    <th>Consumer</th>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fb in feedbacks %}
+                    <tr>
+                        <td><span class="fw-bold">#{{ fb.id }}</span></td>
+                        <td><span class="fw-bold text-success">{{ fb.product.product_name }}</span></td>
+                        <td>{{ fb.product.farmer.full_name }}</td>
+                        <td>{{ fb.consumer.full_name }}</td>
+                        <td>
+                            <div class="text-warning small text-nowrap">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= fb.rating %}
+                                        <i class="fa-solid fa-star"></i>
+                                    {% else %}
+                                        <i class="fa-regular fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td><small class="text-muted">{{ fb.comment|truncatechars:60 }}</small></td>
+                        <td class="small text-muted">{{ fb.created_at|date:"d M Y, H:i" }}</td>
+                        <td>
+                            <a href="{% url 'admin_delete_review' fb.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this review?')"><i class="fa-solid fa-trash me-1"></i> Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8" class="text-center text-muted py-4">No reviews found matching criteria.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

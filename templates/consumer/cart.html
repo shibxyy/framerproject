@@ -1,0 +1,99 @@
+{% extends 'base_consumer.html' %}
+
+{% block title %}Shopping Cart | AgroDirect{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">My Shopping Cart</h3>
+        <p class="text-muted small">Review items, adjust quantities, and proceed to direct farm checkout</p>
+    </div>
+    <a href="{% url 'marketplace' %}" class="btn btn-outline-success"><i class="fa-solid fa-store me-1"></i> Continue Shopping</a>
+</div>
+
+<div class="row g-4">
+    <!-- Cart Items Table -->
+    <div class="col-lg-8">
+        <div class="agri-card p-4">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Vegetable Produce</th>
+                            <th>Price / kg</th>
+                            <th>Quantity (kg)</th>
+                            <th>Subtotal</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if item.product.product_image %}
+                                            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" class="rounded-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light p-2 rounded-3 text-center" style="width: 50px; height: 50px;"><i class="fa-solid fa-carrot text-warning fs-4"></i></div>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="fw-bold mb-0">{{ item.product.product_name }}</h6>
+                                            <small class="text-muted"><i class="fa-solid fa-wheat-awn me-1 text-success"></i>{{ item.product.farmer.full_name }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>₹{{ item.product.price_per_kg }}</td>
+                                <td>
+                                    <form method="POST" action="{% url 'update_cart_quantity' item.id %}" class="d-flex align-items-center gap-2 needs-validation" novalidate style="max-width: 140px;">
+                                        {% csrf_token %}
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="0.5" max="{{ item.product.stock_quantity }}" step="0.5" class="form-control form-control-sm text-center" required>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Update Quantity"><i class="fa-solid fa-rotate"></i></button>
+                                    </form>
+                                    <small class="text-muted d-block mt-1" style="font-size: 0.7rem;">Max: {{ item.product.stock_quantity }}kg</small>
+                                </td>
+                                <td><span class="fw-bold text-success">₹{{ item.total_price }}</span></td>
+                                <td>
+                                    <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-outline-danger" title="Remove Item" onclick="return confirm('Remove {{ item.product.product_name }} from cart?')"><i class="fa-solid fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    <i class="fa-solid fa-cart-shopping fs-1 text-muted mb-2 d-block"></i>
+                                    Your cart is currently empty. <a href="{% url 'marketplace' %}" class="text-success fw-bold">Browse fresh vegetables</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Summary Card -->
+    <div class="col-lg-4">
+        <div class="agri-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-receipt text-success me-2"></i> Order Summary</h5>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Items Subtotal:</span>
+                <span class="fw-bold">₹{{ total_amount }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">Direct Farm Shipping:</span>
+                <span class="badge bg-success">FREE</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between mb-4">
+                <span class="fw-bold fs-5">Total Payable:</span>
+                <span class="fw-bold fs-4 text-success">₹{{ total_amount }}</span>
+            </div>
+
+            {% if cart_items %}
+                <a href="{% url 'checkout' %}" class="btn btn-agri btn-lg w-100"><i class="fa-solid fa-lock me-2"></i> Proceed to Checkout</a>
+            {% else %}
+                <button class="btn btn-secondary btn-lg w-100" disabled>Cart Empty</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

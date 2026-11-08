@@ -1,0 +1,70 @@
+{% extends 'base_consumer.html' %}
+
+{% block title %}My Order History | AgroDirect{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Order History & Tracking</h3>
+        <p class="text-muted small">View past orders, track delivery status, or cancel pending orders</p>
+    </div>
+    <a href="{% url 'marketplace' %}" class="btn btn-agri"><i class="fa-solid fa-store me-1"></i> Order Vegetables</a>
+</div>
+
+<div class="agri-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Order #</th>
+                    <th>Ordered Vegetables</th>
+                    <th>Total Amount</th>
+                    <th>Order Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td><span class="fw-bold text-success">#{{ order.id }}</span></td>
+                        <td>
+                            <ul class="list-unstyled mb-0 small">
+                                {% for item in order.items.all %}
+                                    <li class="mb-1">
+                                        <i class="fa-solid fa-leaf text-success me-1"></i> {{ item.product.product_name }} ({{ item.quantity }}kg)
+                                        {% if item.item_status == 'Delivered' or order.order_status == 'Delivered' %}
+                                            <a href="{% url 'product_detail' item.product.id %}" class="badge bg-warning text-dark text-decoration-none ms-1"><i class="fa-solid fa-star me-1"></i> Rate & Review</a>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><span class="fw-bold text-dark">₹{{ order.total_amount }}</span></td>
+                        <td>
+                            <span class="badge badge-status 
+                                {% if order.order_status == 'Delivered' %}badge-delivered
+                                {% elif order.order_status == 'Pending' %}badge-pending
+                                {% elif order.order_status == 'Cancelled' or order.order_status == 'Rejected' %}badge-rejected
+                                {% else %}badge-approved{% endif %}">
+                                {{ order.order_status }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">{{ order.order_date|date:"d M Y, H:i" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'consumer_order_track' order.id %}" class="btn btn-outline-success"><i class="fa-solid fa-truck-fast me-1"></i> Track</a>
+                                {% if order.order_status == 'Pending' or order.order_status == 'Accepted' %}
+                                    <a href="{% url 'consumer_order_cancel' order.id %}" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to cancel order #{{ order.id }}?')"><i class="fa-solid fa-xmark me-1"></i> Cancel</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted py-5">No order history found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

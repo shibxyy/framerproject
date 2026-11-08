@@ -1,0 +1,105 @@
+{% extends 'base_farmer.html' %}
+
+{% block title %}Sales & Stock Reports | Farmer Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Sales & Inventory Reports</h3>
+        <p class="text-muted small">Detailed analytics for daily sales, monthly earnings, and farm stock levels</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Stock Inventory Report -->
+    <div class="col-lg-6">
+        <div class="agri-card p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-boxes-stacked text-success me-2"></i> Current Stock Report</h5>
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Vegetable</th>
+                            <th>Category</th>
+                            <th>Stock Left</th>
+                            <th>Price / kg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prod in stock_report %}
+                            <tr>
+                                <td class="fw-bold">{{ prod.product_name }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ prod.category.category_name }}</span></td>
+                                <td>
+                                    <span class="badge {% if prod.stock_quantity <= 5 %}bg-danger{% else %}bg-success{% endif %}">
+                                        {{ prod.stock_quantity }} kg
+                                    </span>
+                                </td>
+                                <td>₹{{ prod.price_per_kg }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted">No vegetables listed.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Sales Breakdown -->
+    <div class="col-lg-6">
+        <div class="agri-card p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-calendar-day text-primary me-2"></i> Daily Sales Breakdown</h5>
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Total Sold</th>
+                            <th>Total Earnings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day in daily_sales %}
+                            <tr>
+                                <td><span class="fw-semibold">{{ day.order__order_date__date|date:"d M Y" }}</span></td>
+                                <td><span class="badge bg-light text-dark border">{{ day.total_qty }} kg</span></td>
+                                <td><span class="fw-bold text-success">₹{{ day.total_revenue|floatformat:2 }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3" class="text-center text-muted">No daily sales recorded yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Sales Summary -->
+<div class="agri-card p-4">
+    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-column text-warning me-2"></i> Monthly Sales & Revenue Report</h5>
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Month / Year</th>
+                    <th>Total Produce Delivered</th>
+                    <th>Gross Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in monthly_sales %}
+                    <tr>
+                        <td><span class="fw-bold">{{ m.order__order_date__month }}/{{ m.order__order_date__year }}</span></td>
+                        <td>{{ m.total_qty }} kg</td>
+                        <td><span class="fw-bold text-success">₹{{ m.total_revenue|floatformat:2 }}</span></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="3" class="text-center text-muted py-4">No monthly sales data available.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

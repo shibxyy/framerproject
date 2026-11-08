@@ -1,0 +1,59 @@
+{% extends 'base_consumer.html' %}
+
+{% block title %}Notification Center | AgroDirect{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0"><i class="fa-solid fa-bell text-danger me-2"></i> In-App Notification Panel</h3>
+            <p class="text-muted small">Real-time alerts for order status changes, farmer updates, and complaint resolutions</p>
+        </div>
+        <form method="POST" action="{% url 'consumer_notifications' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="mark_all_read">
+            <button type="submit" class="btn btn-outline-success btn-sm rounded-pill px-3"><i class="fa-solid fa-check-double me-1"></i> Mark All as Read</button>
+        </form>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="agri-card p-4">
+                <div class="list-group list-group-flush">
+                    {% for n in notifications %}
+                        <div class="list-group-item px-3 py-3 mb-2 rounded-3 border {% if not n.is_read %}bg-light border-success shadow-sm{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if not n.is_read %}
+                                        <span class="badge bg-danger rounded-pill">UNREAD</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary rounded-pill">READ</span>
+                                    {% endif %}
+                                    <h6 class="fw-bold mb-0 {% if not n.is_read %}text-success fs-6{% else %}text-dark{% endif %}">{{ n.title }}</h6>
+                                </div>
+                                <span class="text-muted small"><i class="fa-regular fa-clock me-1"></i> {{ n.created_at|date:"d M Y, H:i" }}</span>
+                            </div>
+                            <p class="text-muted small mb-2 ms-4">{{ n.message }}</p>
+                            
+                            {% if not n.is_read %}
+                                <div class="text-end">
+                                    <form method="POST" action="{% url 'consumer_notifications' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="notif_id" value="{{ n.id }}">
+                                        <button type="submit" class="btn btn-sm btn-link text-success p-0 text-decoration-none fw-bold small"><i class="fa-solid fa-check me-1"></i> Mark as read</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-bell-slash fs-1 mb-2"></i>
+                            <p>No notifications received yet.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

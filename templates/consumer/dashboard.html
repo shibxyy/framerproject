@@ -1,0 +1,114 @@
+{% extends 'base_consumer.html' %}
+
+{% block title %}Consumer Dashboard | AgroDirect{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Hello, {{ consumer.full_name }}!</h3>
+        <p class="text-muted small"><i class="fa-solid fa-location-dot text-danger me-1"></i> Delivery Address: {{ consumer.delivery_address|truncatechars:45 }}</p>
+    </div>
+    <a href="{% url 'marketplace' %}" class="btn btn-agri"><i class="fa-solid fa-basket-shopping me-1"></i> Browse Fresh Vegetables</a>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card bg-emerald">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Total Orders</h6>
+            <h2 class="fw-bold mb-0">{{ total_orders }}</h2>
+            <small class="text-white-50">Purchases made</small>
+            <i class="fa-solid fa-receipt stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card bg-amber">
+            <h6 class="text-dark-50 text-uppercase fw-bold small">Pending Deliveries</h6>
+            <h2 class="fw-bold mb-0">{{ pending_orders }}</h2>
+            <small>Active in progress</small>
+            <i class="fa-solid fa-truck-fast stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card bg-teal">
+            <h6 class="text-white-50 text-uppercase fw-bold small">Unread Notifications</h6>
+            <h2 class="fw-bold mb-0">{{ unread_notifications_count }}</h2>
+            <small class="text-white-50">Updates from farmers</small>
+            <i class="fa-solid fa-bell stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Orders -->
+    <div class="col-lg-7">
+        <div class="agri-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-clock-rotate-left text-success me-2"></i> Recent Purchase History</h5>
+                <a href="{% url 'consumer_orders' %}" class="btn btn-sm btn-outline-success">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Order Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                            <tr>
+                                <td><span class="fw-bold">#{{ order.id }}</span></td>
+                                <td><span class="fw-bold text-success">₹{{ order.total_amount }}</span></td>
+                                <td>
+                                    <span class="badge badge-status 
+                                        {% if order.order_status == 'Delivered' %}badge-delivered
+                                        {% elif order.order_status == 'Pending' %}badge-pending
+                                        {% else %}badge-approved{% endif %}">
+                                        {{ order.order_status }}
+                                    </span>
+                                </td>
+                                <td class="small text-muted">{{ order.order_date|date:"d M Y" }}</td>
+                                <td>
+                                    <a href="{% url 'consumer_order_track' order.id %}" class="btn btn-sm btn-agri"><i class="fa-solid fa-truck-ramp-box me-1"></i> Track</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted py-4">No order history found. Start shopping fresh vegetables today!</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-Time Notifications Summary Panel -->
+    <div class="col-lg-5">
+        <div class="agri-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-bell text-danger me-2"></i> Recent Notifications</h5>
+                <a href="{% url 'consumer_notifications' %}" class="btn btn-sm btn-outline-danger">Notification Center</a>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for n in recent_notifications %}
+                    <div class="list-group-item bg-transparent px-0 py-2 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="fw-bold mb-1 small {% if not n.is_read %}text-danger{% else %}text-dark{% endif %}">
+                                {% if not n.is_read %}<i class="fa-solid fa-circle text-danger me-1 fs-6"></i>{% endif %}
+                                {{ n.title }}
+                            </h6>
+                            <small class="text-muted" style="font-size: 0.75rem;">{{ n.created_at|date:"d M, H:i" }}</small>
+                        </div>
+                        <p class="small text-muted mb-0">{{ n.message|truncatechars:65 }}</p>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-4 text-muted small">No notifications at the moment.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

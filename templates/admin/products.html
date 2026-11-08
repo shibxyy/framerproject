@@ -1,0 +1,105 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Manage & Approve Products | Admin Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Vegetable Product Approvals</h3>
+        <p class="text-muted small">Approve farmer vegetable listings before they appear in consumer marketplace</p>
+    </div>
+</div>
+
+<!-- Filter & Search Bar -->
+<div class="agri-card p-3 mb-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search product name, farmer, or category...">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="">-- All Product Statuses --</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending Approval</option>
+                <option value="Approved" {% if status_filter == 'Approved' %}selected{% endif %}>Approved</option>
+                <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+                <option value="Out Of Stock" {% if status_filter == 'Out Of Stock' %}selected{% endif %}>Out Of Stock</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-agri w-100"><i class="fa-solid fa-filter me-1"></i> Apply Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Products Table -->
+<div class="agri-card p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Product Details</th>
+                    <th>Farmer</th>
+                    <th>Category</th>
+                    <th>Price / kg</th>
+                    <th>Available Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if product.product_image %}
+                                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="rounded-3" style="width: 55px; height: 55px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light p-2 rounded-3 text-center" style="width: 55px; height: 55px;"><i class="fa-solid fa-carrot text-warning fs-4"></i></div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="fw-bold mb-0">{{ product.product_name }}</h6>
+                                    <small class="text-muted">{{ product.description|truncatechars:35 }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="fw-semibold">{{ product.farmer.full_name }}</span><br>
+                            <small class="text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i>{{ product.farmer.farm_location }}</small>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ product.category.category_name }}</span></td>
+                        <td><span class="fw-bold text-success">₹{{ product.price_per_kg }}</span></td>
+                        <td>
+                            <span class="fw-bold {% if product.stock_quantity <= 5 %}text-danger{% else %}text-dark{% endif %}">
+                                {{ product.stock_quantity }} kg
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-status 
+                                {% if product.status == 'Approved' %}badge-approved
+                                {% elif product.status == 'Pending' %}badge-pending
+                                {% else %}badge-rejected{% endif %}">
+                                {{ product.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                {% if product.status != 'Approved' %}
+                                    <a href="{% url 'admin_product_action' product.id 'approve' %}" class="btn btn-outline-success"><i class="fa-solid fa-check me-1"></i> Approve</a>
+                                {% endif %}
+                                {% if product.status != 'Rejected' %}
+                                    <a href="{% url 'admin_product_action' product.id 'reject' %}" class="btn btn-outline-danger"><i class="fa-solid fa-xmark me-1"></i> Reject</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">No products listed matching your query.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

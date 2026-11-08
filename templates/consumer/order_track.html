@@ -1,0 +1,97 @@
+{% extends 'base_consumer.html' %}
+
+{% block title %}Track Order #{{ order.id }} | AgroDirect{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="mb-3">
+            <a href="{% url 'consumer_orders' %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Back to Orders</a>
+        </div>
+
+        <div class="agri-card p-4 p-md-5 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <span class="badge bg-success mb-1">TXN: {{ order.transaction_id }}</span>
+                    <h3 class="fw-bold mb-0">Order #{{ order.id }} Tracking</h3>
+                    <small class="text-muted">Placed on {{ order.order_date|date:"d M Y, H:i" }}</small>
+                </div>
+                <span class="badge badge-status fs-6 p-2
+                    {% if order.order_status == 'Delivered' %}badge-delivered
+                    {% elif order.order_status == 'Pending' %}badge-pending
+                    {% else %}badge-approved{% endif %}">
+                    {{ order.order_status }}
+                </span>
+            </div>
+
+            <!-- Order Timeline Progress -->
+            <div class="row text-center py-4 bg-light rounded-4 my-4 g-2">
+                <div class="col">
+                    <div class="p-2 {% if order.order_status in 'Pending,Accepted,Packed,Out For Delivery,Delivered' %}text-success fw-bold{% else %}text-muted{% endif %}">
+                        <i class="fa-solid fa-receipt fs-2 mb-2"></i>
+                        <p class="mb-0 small">Order Placed</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-2 {% if order.order_status in 'Accepted,Packed,Out For Delivery,Delivered' %}text-success fw-bold{% else %}text-muted{% endif %}">
+                        <i class="fa-solid fa-user-check fs-2 mb-2"></i>
+                        <p class="mb-0 small">Farmer Accepted</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-2 {% if order.order_status in 'Packed,Out For Delivery,Delivered' %}text-success fw-bold{% else %}text-muted{% endif %}">
+                        <i class="fa-solid fa-box-archive fs-2 mb-2"></i>
+                        <p class="mb-0 small">Packed Fresh</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-2 {% if order.order_status in 'Out For Delivery,Delivered' %}text-success fw-bold{% else %}text-muted{% endif %}">
+                        <i class="fa-solid fa-truck-fast fs-2 mb-2"></i>
+                        <p class="mb-0 small">Out For Delivery</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-2 {% if order.order_status == 'Delivered' %}text-success fw-bold{% else %}text-muted{% endif %}">
+                        <i class="fa-solid fa-house-circle-check fs-2 mb-2"></i>
+                        <p class="mb-0 small">Delivered</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items & Farmers Details -->
+            <h5 class="fw-bold mb-3">Order Content:</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Vegetable</th>
+                            <th>Farmer</th>
+                            <th>Farm Location</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Item Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                            <tr>
+                                <td><span class="fw-bold">{{ item.product.product_name }}</span></td>
+                                <td>{{ item.farmer.full_name }}</td>
+                                <td><small class="text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i>{{ item.farmer.farm_location }}</small></td>
+                                <td>{{ item.quantity }} kg</td>
+                                <td>₹{{ item.subtotal }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ item.item_status }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-light p-3 rounded-3 mt-3 d-flex justify-content-between align-items-center">
+                <span class="text-muted">Delivery Address: <strong>{{ order.delivery_address }}</strong></span>
+                <span class="fw-bold fs-5 text-success">Total: ₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

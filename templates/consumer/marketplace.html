@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+
+{% block title %}Vegetable Marketplace | AgroDirect{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="bg-success text-white p-4 rounded-4 shadow-sm mb-4" style="background: linear-gradient(135deg, #1b5e20, #2e7d32);">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold mb-1"><i class="fa-solid fa-store me-2 text-warning"></i> Fresh Vegetable Marketplace</h2>
+                <p class="mb-0 text-white-50">Directly sourced organic produce from verified local farmers with verified ratings & reviews.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <span class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill fw-bold"><i class="fa-solid fa-leaf me-1"></i> {{ products.count }} Produce Items</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommended Products Section (Tabbed / Highlighted) -->
+    {% if not query and not selected_category and not selected_farmer %}
+    <div class="mb-5">
+        <ul class="nav nav-pills mb-3 gap-2" id="recomTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active rounded-pill fw-bold" id="top-rated-tab" data-bs-toggle="pill" data-bs-target="#top-rated" type="button" role="tab"><i class="fa-solid fa-star text-warning me-1"></i> Top Rated</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill fw-bold" id="most-reviewed-tab" data-bs-toggle="pill" data-bs-target="#most-reviewed" type="button" role="tab"><i class="fa-solid fa-comments text-info me-1"></i> Most Reviewed</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill fw-bold" id="best-selling-tab" data-bs-toggle="pill" data-bs-target="#best-selling" type="button" role="tab"><i class="fa-solid fa-fire text-danger me-1"></i> Best Selling</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill fw-bold" id="newly-added-tab" data-bs-toggle="pill" data-bs-target="#newly-added" type="button" role="tab"><i class="fa-solid fa-sparkles text-success me-1"></i> Newly Added</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="recomTabContent">
+            <!-- Top Rated Tab -->
+            <div class="tab-pane fade show active" id="top-rated" role="tabpanel">
+                <div class="row g-3">
+                    {% for p in top_rated_products %}
+                        <div class="col-md-3 col-sm-6">
+                            <div class="agri-card h-100 p-3">
+                                <div class="position-relative mb-2">
+                                    <img src="{% if p.product_image %}{{ p.product_image.url }}{% else %}/static/images/placeholder.jpg{% endif %}" alt="{{ p.product_name }}" class="agri-card-img rounded-3" style="height: 140px; object-fit: cover;">
+                                    <span class="position-absolute top-0 end-0 m-2 badge bg-success">{{ p.category.category_name }}</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-truncate">{{ p.product_name }}</h6>
+                                <div class="text-warning small mb-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span class="fw-bold text-dark me-1">{{ p.avg_rating|default:0|floatformat:1 }}</span>
+                                    <span class="text-muted">({{ p.review_count }})</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-success">₹{{ p.price_per_kg }}/kg</span>
+                                    <a href="{% url 'product_detail' p.id %}" class="btn btn-sm btn-agri"><i class="fa-solid fa-eye me-1"></i> View</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-muted small">No rated products yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Most Reviewed Tab -->
+            <div class="tab-pane fade" id="most-reviewed" role="tabpanel">
+                <div class="row g-3">
+                    {% for p in most_reviewed_products %}
+                        <div class="col-md-3 col-sm-6">
+                            <div class="agri-card h-100 p-3">
+                                <div class="position-relative mb-2">
+                                    <img src="{% if p.product_image %}{{ p.product_image.url }}{% else %}/static/images/placeholder.jpg{% endif %}" alt="{{ p.product_name }}" class="agri-card-img rounded-3" style="height: 140px; object-fit: cover;">
+                                    <span class="position-absolute top-0 end-0 m-2 badge bg-info">{{ p.category.category_name }}</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-truncate">{{ p.product_name }}</h6>
+                                <div class="text-warning small mb-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span class="fw-bold text-dark me-1">{{ p.avg_rating|default:0|floatformat:1 }}</span>
+                                    <span class="text-muted">({{ p.review_count }} reviews)</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-success">₹{{ p.price_per_kg }}/kg</span>
+                                    <a href="{% url 'product_detail' p.id %}" class="btn btn-sm btn-agri"><i class="fa-solid fa-eye me-1"></i> View</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-muted small">No reviewed products yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Best Selling Tab -->
+            <div class="tab-pane fade" id="best-selling" role="tabpanel">
+                <div class="row g-3">
+                    {% for p in best_selling_products %}
+                        <div class="col-md-3 col-sm-6">
+                            <div class="agri-card h-100 p-3">
+                                <div class="position-relative mb-2">
+                                    <img src="{% if p.product_image %}{{ p.product_image.url }}{% else %}/static/images/placeholder.jpg{% endif %}" alt="{{ p.product_name }}" class="agri-card-img rounded-3" style="height: 140px; object-fit: cover;">
+                                    <span class="position-absolute top-0 end-0 m-2 badge bg-danger">Best Seller</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-truncate">{{ p.product_name }}</h6>
+                                <div class="text-warning small mb-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span class="fw-bold text-dark me-1">{{ p.avg_rating|default:0|floatformat:1 }}</span>
+                                    <span class="text-muted">({{ p.review_count }})</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-success">₹{{ p.price_per_kg }}/kg</span>
+                                    <a href="{% url 'product_detail' p.id %}" class="btn btn-sm btn-agri"><i class="fa-solid fa-eye me-1"></i> View</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-muted small">No completed sales yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Newly Added Tab -->
+            <div class="tab-pane fade" id="newly-added" role="tabpanel">
+                <div class="row g-3">
+                    {% for p in newly_added_products %}
+                        <div class="col-md-3 col-sm-6">
+                            <div class="agri-card h-100 p-3">
+                                <div class="position-relative mb-2">
+                                    <img src="{% if p.product_image %}{{ p.product_image.url }}{% else %}/static/images/placeholder.jpg{% endif %}" alt="{{ p.product_name }}" class="agri-card-img rounded-3" style="height: 140px; object-fit: cover;">
+                                    <span class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark">New</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-truncate">{{ p.product_name }}</h6>
+                                <div class="text-warning small mb-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span class="fw-bold text-dark me-1">{{ p.avg_rating|default:0|floatformat:1 }}</span>
+                                    <span class="text-muted">({{ p.review_count }})</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-success">₹{{ p.price_per_kg }}/kg</span>
+                                    <a href="{% url 'product_detail' p.id %}" class="btn btn-sm btn-agri"><i class="fa-solid fa-eye me-1"></i> View</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-muted small">No new products.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="agri-card p-4 sticky-top" style="top: 90px; z-index: 100;">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-filter text-success me-2"></i> Filter Vegetables</h5>
+
+                <form method="GET" id="filterForm">
+                    <!-- Search Input (Product Name, Category, Farmer Name) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Search Produce or Farmer</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search tomato, organic..." id="searchInput">
+                        </div>
+                    </div>
+
+                    <!-- Category Select -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Category</label>
+                        <select name="category" class="form-select" id="categorySelect">
+                            <option value="">-- All Categories --</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.category_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Farmer Select -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Farmer</label>
+                        <select name="farmer" class="form-select">
+                            <option value="">-- All Farmers --</option>
+                            {% for f in farmers %}
+                                <option value="{{ f.id }}" {% if selected_farmer == f.id|stringformat:"s" %}selected{% endif %}>{{ f.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Minimum Rating Filter -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Minimum Rating</label>
+                        <select name="rating" class="form-select">
+                            <option value="">-- Any Rating --</option>
+                            <option value="4" {% if min_rating == '4' %}selected{% endif %}>4★ & Above ⭐⭐⭐⭐</option>
+                            <option value="3" {% if min_rating == '3' %}selected{% endif %}>3★ & Above ⭐⭐⭐</option>
+                            <option value="2" {% if min_rating == '2' %}selected{% endif %}>2★ & Above ⭐⭐</option>
+                        </select>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Max Price Per kg (₹)</label>
+                        <input type="number" name="price" value="{{ max_price }}" class="form-control" placeholder="e.g. 100" step="5" id="priceInput">
+                    </div>
+
+                    <!-- Sorting -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small">Sort By</label>
+                        <select name="sort" class="form-select" id="sortSelect">
+                            <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrival</option>
+                            <option value="highest_rated" {% if sort_by == 'highest_rated' %}selected{% endif %}>Highest Rated ⭐</option>
+                            <option value="most_reviewed" {% if sort_by == 'most_reviewed' %}selected{% endif %}>Most Reviewed 💬</option>
+                            <option value="best_selling" {% if sort_by == 'best_selling' %}selected{% endif %}>Best Selling 🔥</option>
+                            <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-agri w-100 mb-2"><i class="fa-solid fa-check me-1"></i> Apply Filters</button>
+                    <a href="{% url 'marketplace' %}" class="btn btn-outline-secondary w-100 btn-sm">Reset</a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="col-lg-9">
+            <div class="row g-4" id="productGrid">
+                {% for product in products %}
+                    <div class="col-md-4 col-sm-6 product-item">
+                        <div class="agri-card h-100 d-flex flex-column">
+                            <div class="position-relative">
+                                {% if product.product_image %}
+                                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="agri-card-img">
+                                {% else %}
+                                    <div class="bg-light agri-card-img d-flex align-items-center justify-content-center"><i class="fa-solid fa-carrot text-warning fs-1"></i></div>
+                                {% endif %}
+                                <span class="position-absolute top-0 end-0 m-2 badge bg-success">{{ product.category.category_name }}</span>
+                            </div>
+                            <div class="p-3 flex-grow-1 d-flex flex-column">
+                                <h5 class="fw-bold mb-1">{{ product.product_name }}</h5>
+                                <p class="small text-muted mb-2"><i class="fa-solid fa-wheat-awn text-success me-1"></i> {{ product.farmer.full_name }}</p>
+                                
+                                <!-- Star Rating Badge -->
+                                <div class="d-flex align-items-center gap-1 text-warning small mb-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span class="fw-bold text-dark">
+                                        {% if product.avg_rating %}{{ product.avg_rating|floatformat:1 }}{% else %}0.0{% endif %}
+                                    </span>
+                                    <span class="text-muted">({{ product.review_count }} reviews)</span>
+                                </div>
+
+                                <p class="small text-muted mb-3 flex-grow-1">{{ product.description|truncatechars:45 }}</p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <span class="price-tag">₹{{ product.price_per_kg }}</span>
+                                        <span class="small text-muted">/ kg</span>
+                                    </div>
+                                    <span class="badge bg-light text-dark border"><i class="fa-solid fa-cubes me-1"></i> {{ product.stock_quantity }} kg left</span>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-agri btn-sm"><i class="fa-solid fa-cart-plus me-1"></i> View & Purchase</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <i class="fa-solid fa-leaf text-muted fs-1 mb-2 d-block"></i>
+                        <h5 class="fw-bold text-muted">No vegetables match your search or filters.</h5>
+                        <p class="text-muted small">Try resetting your filters or search terms.</p>
+                        <a href="{% url 'marketplace' %}" class="btn btn-outline-success rounded-pill mt-2">View All Produce</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // AJAX Live Search Filter enhancement
+    const searchInput = document.getElementById('searchInput');
+    let timeout = null;
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                const formData = new FormData(document.getElementById('filterForm'));
+                const params = new URLSearchParams(formData).toString();
+
+                fetch("{% url 'marketplace' %}?" + params, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const grid = document.getElementById('productGrid');
+                    if (data.products.length === 0) {
+                        grid.innerHTML = `<div class="col-12 text-center py-5"><h5 class="fw-bold text-muted">No matching vegetables found.</h5></div>`;
+                        return;
+                    }
+                    grid.innerHTML = data.products.map(p => `
+                        <div class="col-md-4 col-sm-6">
+                            <div class="agri-card h-100 d-flex flex-column">
+                                <div class="position-relative">
+                                    <img src="${p.image}" class="agri-card-img" alt="${p.name}">
+                                    <span class="position-absolute top-0 end-0 m-2 badge bg-success">${p.category}</span>
+                                </div>
+                                <div class="p-3 flex-grow-1 d-flex flex-column">
+                                    <h5 class="fw-bold mb-1">${p.name}</h5>
+                                    <p class="small text-muted mb-2"><i class="fa-solid fa-wheat-awn text-success me-1"></i> ${p.farmer}</p>
+                                    <div class="d-flex align-items-center gap-1 text-warning small mb-2">
+                                        <i class="fa-solid fa-star"></i>
+                                        <span class="fw-bold text-dark">${p.rating}</span>
+                                        <span class="text-muted">(${p.review_count} reviews)</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div><span class="price-tag">₹${p.price}</span> <span class="small text-muted">/ kg</span></div>
+                                        <span class="badge bg-light text-dark border">${p.stock} kg left</span>
+                                    </div>
+                                    <div class="d-grid"><a href="/product/${p.id}/" class="btn btn-agri btn-sm">View & Purchase</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                });
+            }, 400);
+        });
+    }
+</script>
+{% endblock %}

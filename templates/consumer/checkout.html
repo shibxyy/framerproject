@@ -1,0 +1,70 @@
+{% extends 'base_consumer.html' %}
+
+{% block title %}Checkout | Direct Farm Order{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="agri-card p-4 p-md-5">
+            <h4 class="fw-bold mb-3"><i class="fa-solid fa-credit-card text-success me-2"></i> Direct Farm Checkout</h4>
+            <p class="text-muted small mb-4">Confirm your delivery details and place your order directly with local farmers</p>
+
+            <form method="POST" action="{% url 'checkout' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <!-- Delivery Address -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold"><i class="fa-solid fa-location-dot text-danger me-1"></i> Confirm Delivery Address *</label>
+                    <textarea name="delivery_address" class="form-control" rows="3" required minlength="5">{{ consumer.delivery_address }}</textarea>
+                    <div class="invalid-feedback">Please provide a valid delivery address (minimum 5 characters).</div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold"><i class="fa-solid fa-wallet text-warning me-1"></i> Payment Option</label>
+                    <div class="agri-card p-3 border">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="payOnline" checked required>
+                            <label class="form-check-label fw-bold" for="payOnline">
+                                <i class="fa-solid fa-credit-card me-2 text-success"></i> Direct Online Payment / UPI / NetBanking (Simulated)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items Summary -->
+                <h6 class="fw-bold mb-2">Order Summary:</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table align-middle table-sm border rounded">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Item</th>
+                                <th>Farmer</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                                <tr>
+                                    <td><span class="fw-bold">{{ item.product.product_name }}</span></td>
+                                    <td>{{ item.product.farmer.full_name }}</td>
+                                    <td>{{ item.quantity }} kg</td>
+                                    <td>₹{{ item.total_price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mb-4">
+                    <span class="fw-bold fs-5">Total Amount:</span>
+                    <span class="fw-bold fs-4 text-success">₹{{ total_amount }}</span>
+                </div>
+
+                <button type="submit" class="btn btn-agri btn-lg w-100"><i class="fa-solid fa-circle-check me-2"></i> Place Order & Pay ₹{{ total_amount }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
